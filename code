@@ -1,0 +1,153 @@
+#создай приложение для запоминания информации
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QApplication, QButtonGroup, QWidget, QHBoxLayout, QVBoxLayout, QGroupBox, QRadioButton, QPushButton, QLabel)
+from random import shuffle,randint
+
+class Question():
+    def __init__(self,question, right_answer, wrong1, wrong2, wrong3):
+        self.question=question
+        self.right_answer=right_answer
+        self.wrong1=wrong1
+        self.wrong2=wrong2
+        self.wrong3=wrong3
+
+questions_list=[]
+questions_list.append(Question('Государственный язык Бразилии', 'Португальский', 'Английский','Испанский','Бразильский'))
+questions_list.append(Question('Какого цвета нет на флаге России?','Зелёный','Красный','Белый','Синий'))
+questions_list.append(Question('нациоНнальная хижина якутов','Ураса','Юрта','Иглу','ХЗ'))
+
+app=QApplication([])
+
+linux=QWidget()
+linux.setWindowTitle('Memory Card')
+linux.resize(400,400)
+
+baton=QPushButton('дальше')
+label2=QLabel('?????')
+
+radio=QGroupBox('ответь на вопросы иначе...')
+radio_baton=QRadioButton('?????')
+radio_baton2=QRadioButton('?????')
+radio_baton3=QRadioButton('?????')
+radio_baton4=QRadioButton('?????')
+
+RadioGroup=QButtonGroup()
+RadioGroup.addButton(radio_baton)
+RadioGroup.addButton(radio_baton2)
+RadioGroup.addButton(radio_baton3)
+RadioGroup.addButton(radio_baton4)
+
+layouto1=QHBoxLayout()
+layouto2=QVBoxLayout()
+layouto3=QVBoxLayout()
+layouto2.addWidget(radio_baton)
+layouto2.addWidget(radio_baton2)
+layouto3.addWidget(radio_baton3)
+layouto3.addWidget(radio_baton4)
+
+layouto1.addLayout(layouto2)
+layouto1.addLayout(layouto3)
+
+radio.setLayout(layouto1)
+
+AnsGroupBox=QGroupBox('Result_of_????')
+lb_Result=QLabel('???')
+lb_Correct=QLabel('???')
+layouto_res=QVBoxLayout()
+layouto_res.addWidget(lb_Result, alignment=(Qt.AlignLeft | Qt.AlignTop))
+layouto_res.addWidget(lb_Correct, alignment=Qt.AlignHCenter, stretch=2)
+AnsGroupBox.setLayout(layouto_res)
+
+spec_layouto1=QHBoxLayout()
+spec_layouto2=QHBoxLayout()
+spec_layouto3=QHBoxLayout()
+
+
+
+spec_layouto1.addWidget(label2, alignment=(Qt.AlignHCenter | Qt.AlignVCenter))
+spec_layouto2.addWidget(radio)
+spec_layouto2.addWidget(AnsGroupBox)
+AnsGroupBox.hide()
+
+spec_layouto3.addStretch(1)
+spec_layouto3.addWidget(baton, stretch=2)
+spec_layouto3.addStretch(1)
+
+union_layouto=QVBoxLayout()
+
+union_layouto.addLayout(spec_layouto1, stretch=2)
+union_layouto.addLayout(spec_layouto2, stretch=8)
+union_layouto.addStretch(1)
+union_layouto.addLayout(spec_layouto3, stretch=1)
+union_layouto.addStretch(1)
+union_layouto.setSpacing(5)
+
+linux.total=0
+linux.score=0
+
+def show_result():
+    radio.hide()
+    AnsGroupBox.show()
+    baton.setText('дальше')
+
+def show_question():
+    radio.show()
+    AnsGroupBox.hide()
+    baton.setText('дальше')
+    RadioGroup.setExclusive(False)
+    radio_baton.setChecked(False)
+    radio_baton2.setChecked(False)
+    radio_baton3.setChecked(False)
+    radio_baton4.setChecked(False)
+    RadioGroup.setExclusive(True)
+
+answers=[radio_baton,radio_baton2,radio_baton3,radio_baton4]
+
+def ask(q: Question):
+    shuffle(answers)
+    answers[0].setText(q.right_answer)
+    answers[1].setText(q.wrong1)
+    answers[2].setText(q.wrong2)
+    answers[3].setText(q.wrong3)
+    label2.setText(q.question)
+    lb_Correct.setText(q.right_answer)
+    show_question()
+
+def show_correct(res):
+    lb_Result.setText(res)
+    show_result()
+
+def check_answer():
+    if answers[0].isChecked():
+        show_correct('YES!')
+        linux.score+=1
+        print('Статистика\n-Всего вопросов: ', linux.total,'\n-Правильных ответов: ',linux.score)
+        print('Рейтинг: ',(linux.score/linux.total*100),'%')
+    else:
+        if answers[1].isChecked() or answers[2].isChecked() or answers[3].isChecked():
+            show_correct('NO!')
+            print('Рейтинг: ', (linux.score/linux.total*100))
+
+def next_question():
+    linux.total+=1
+    print('Статистика\n-Всего вопросов: ',linux.total,'\n-Правильных ответов: ',linux.score)
+    cur_question=randint(0,len(questions_list)-1)
+   
+    q=questions_list[cur_question]
+    ask(q)
+
+def click_ok():
+    if baton.text()=='pencil2':
+        check_answer()
+    else:
+        next_question()
+
+
+
+baton.clicked.connect(click_ok)
+
+next_question()
+linux.setLayout(union_layouto)
+linux.show()
+app.exec()
+
